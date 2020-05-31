@@ -8,6 +8,5 @@ $plugin_PostBigExtractRequest->setCharset( 'UTF-8' );
 $client->registerPlugin('postbigextractrequest', $plugin_PostBigExtractRequest);
 ```
 
-
 Submitted to Solarium organization
-[issue](https://github.com/solariumphp/solarium/issues/794) to be included or solved into future release.
+([follow the issue](https://github.com/solariumphp/solarium/issues/794)) to be included or solved into future release.
