@@ -16,7 +16,6 @@ use Solarium\Core\Client\Adapter\AdapterHelper;
 use Solarium\Core\Client\Request;
 use Solarium\Core\Event\Events;
 use Solarium\Core\Event\PostCreateRequest as PostCreateRequestEvent;
-use Solarium\Core\Event\PreExecuteRequest as PreExecuteRequestEvent;
 use Solarium\Core\Plugin\AbstractPlugin;
 
 
@@ -100,7 +99,6 @@ class PostBigExtractRequest extends AbstractPlugin
         $request = $event->getRequest();
         $queryString = $request->getQueryString();
         if ('update/extract'==$request->getHandler() && strlen($queryString) > $this->getMaxQueryStringLength()) {
-            //$request->setMethod(Request::METHOD_POST);
             
             if ($request->getFileUpload()) {
                 $body = '';
@@ -109,8 +107,8 @@ class PostBigExtractRequest extends AbstractPlugin
                 if( !empty($params) && count($params)>0 ):
                     foreach($params as $key=>$value):
                         $additional_body_header;
-                        if( is_string ( $value ) /*&& 1!== preg_match('/.*[^a-zA-Z0-9]{1}bin$/', $key)*/ ):
-                            $additional_body_header = "\r\nContent-Type: text/plain;charset=" . $this->getCharset();//$value = urlencode($value);
+                        if(is_string ( $value )):
+                            $additional_body_header = "\r\nContent-Type: text/plain;charset=" . $this->getCharset();
                         else:
                             $additional_body_header = '';
                         endif;
@@ -123,10 +121,10 @@ class PostBigExtractRequest extends AbstractPlugin
                     endforeach;
                 endif;
                 
-                $body .= AdapterHelper::buildUploadBodyFromRequest($request); //must be the last automaticallly include closing boundary
+                $body .= AdapterHelper::buildUploadBodyFromRequest($request); //must be the last automatically include closing boundary
                 
                 $request->setRawData($body);
-                $request->setOption('file', null); // this prevent solarium from call AdapterHelper::buildUploadBodyFromRequest for setting body requst
+                $request->setOption('file', null); // this prevent solarium from call AdapterHelper::buildUploadBodyFromRequest for setting body request
                 $request->clearParams();
                 
             }
@@ -135,19 +133,6 @@ class PostBigExtractRequest extends AbstractPlugin
         return $this;
     }
 
-/*    public function preExecuteRequest(PreExecuteRequestEvent $event): self
-    {
-        $request = $event->getRequest();
-        $queryString = $request->getQueryString();
-        if ('update/extract'==$request->getHandler() ) {
-        
-            $request = $event->getRequest();
-            error_log( '[ERROR] ' . $request->__toString() );
-        
-        
-        }
-        return $this;
-    }*/
     
     /**
      * Plugin init function.
@@ -158,6 +143,5 @@ class PostBigExtractRequest extends AbstractPlugin
     {
         $dispatcher = $this->client->getEventDispatcher();
         $dispatcher->addListener(Events::POST_CREATE_REQUEST, [$this, 'postCreateRequest']);
-        //$dispatcher->addListener(Events::PRE_EXECUTE_REQUEST, [$this, 'preExecuteRequest']);
     }
 }
