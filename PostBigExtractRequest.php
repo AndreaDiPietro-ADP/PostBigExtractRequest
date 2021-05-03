@@ -3,7 +3,7 @@
 /**
  * PostBigExtractRequest
  *
- * Version: 0.1
+ * Version: 0.2
  * Author: Andrea Di Pietro
  * License:           GPL-2.0+
  * License URI:       http://www.gnu.org/licenses/gpl-2.0.txt
@@ -106,24 +106,41 @@ class PostBigExtractRequest extends AbstractPlugin
                 $params = $request->getParams();
                 if( !empty($params) && count($params)>0 ):
                     foreach($params as $key=>$value):
-                        $additional_body_header;
-                        if(is_string ( $value )):
-                            $additional_body_header = "\r\nContent-Type: text/plain;charset=" . $this->getCharset();
+                        if( is_countable($value) ):
+                            foreach ( $value as $array_key => $array_val ):
+                                $additional_body_header;
+                                if( is_string ( $array_val ) /*&& 1!== preg_match('/.*[^a-zA-Z0-9]{1}bin$/', $key)*/ ):
+                                    $additional_body_header = "\r\nContent-Type: text/plain;charset=" . $this->getCharset();//$value = urlencode($value);
+                                else:
+                                    $additional_body_header = '';
+                                endif;
+                                $body .= "--{$request->getHash()}\r\n";
+                                $body .= 'Content-Disposition: form-data; name="' . $key . '"';
+                                $body .= $additional_body_header;
+                                $body .= "\r\n\r\n";
+                                $body .= $array_val;
+                                $body .= "\r\n";
+                            endforeach;
                         else:
-                            $additional_body_header = '';
+                            $additional_body_header;
+                            if( is_string ( $value ) /*&& 1!== preg_match('/.*[^a-zA-Z0-9]{1}bin$/', $key)*/ ):
+                                $additional_body_header = "\r\nContent-Type: text/plain;charset=" . $this->getCharset();//$value = urlencode($value);
+                            else:
+                                $additional_body_header = '';
+                            endif;
+                            $body .= "--{$request->getHash()}\r\n";
+                            $body .= 'Content-Disposition: form-data; name="' . $key . '"';
+                            $body .= $additional_body_header;
+                            $body .= "\r\n\r\n";
+                            $body .= $value;
+                            $body .= "\r\n";
                         endif;
-                        $body .= "--{$request->getHash()}\r\n";
-                        $body .= 'Content-Disposition: form-data; name="' . $key . '"';
-                        $body .= $additional_body_header;
-                        $body .= "\r\n\r\n";
-                        $body .= $value;
-                        $body .= "\r\n";
                     endforeach;
                 endif;
                 
-                $body .= AdapterHelper::buildUploadBodyFromRequest($request); //must be the last automatically include closing boundary
+                $body .= AdapterHelper::buildUploadBodyFromRequest( $request ); //must be the last automatically include closing boundary
                 
-                $request->setRawData($body);
+                $request->setRawData( $body );
                 $request->setOption('file', null); // this prevent solarium from call AdapterHelper::buildUploadBodyFromRequest for setting body request
                 $request->clearParams();
                 
