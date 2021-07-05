@@ -1,0 +1,22 @@
+{
+    "name": "yggdrashill/post-big-extract-query",
+    "description": "Solarium plugin converting GET request into POST, for big extract Solr's query, to avoid ERROR URI limitation HTTP 414 in case there are too many characters on literals parameter.",
+    "type": "solarium-plugin",
+    "license": "Apache-2.0",
+    "keywords": ["solr", "search", "php", "solarium"],
+    "authors": [
+        {
+            "name": "Andrea Di Pietro",
+            "email": "yggdrashill.adp@gmail.com"
+        }
+    ],
+    "require": {
+        "php": ">=7.1 || ^8.0",
+        "solarium/solarium": "^5.0.0 || ^6.0.0",
+    },
+    "autoload": {
+        "psr-4": {
+            "YggdrasHill\\PostBigExtractRequest\\": "src/YggdrasHill/PostBigExtractRequest/"
+        }
+    }
+}
